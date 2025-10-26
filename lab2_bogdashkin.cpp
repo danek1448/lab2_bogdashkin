@@ -1,381 +1,439 @@
-﻿#include <iostream> // ввод-вывод
-#include <fstream> // работа с файлом
-#include <string> // работа со строками
-#include <limits> // пределы числовых типов
-#include <cctype> // для проверок на буквы и пробелы в строках
+﻿#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <algorithm>
+#include <string>
+#include "truba.h"
+#include "cs.h"
+#include "instruments.h"
+#include "logirovanie.h"
+#include <windows.h>
 
 using namespace std;
-// определение трубы
-struct Truba {
-    string name;
-    float dlina_km;
-    int diameter_mm;
-    bool remont;
-};
 
-// определение компрессорной станцт
-struct Compressor {
-    string name;
-    int kol_cehov;
-    int vrabote;
-    float klass_stancii;
-};
+// глобальные контейнеры для хранения объектов
+unordered_map<int, Truba> truby;
+unordered_map<int, Kompressornaya_stantsiya> kompressornye_stantsii;
+int sleduyushiy_id_truba = 1;
+int sleduyushiy_id_ks = 1;
 
-// проверка строки на наличие цифр
-bool Proverka_stroki(const string& s) {
-    for (char c : s) {
-        if (!isalpha(c) && !isspace(c)) {
-            return false;
-        }
-    }
-    return !s.empty();
+// прототипы функций
+void Pokazat_menu();
+void Dobavit_trubu();
+void Dobavit_KS();
+void Pokazat_vse_obekty();
+void Redaktirovat_trubu();
+void Redaktirovat_KS();
+void Sohranit_dannye();
+void Zagruzit_dannye();
+void Poisk_trub();
+void Poisk_KS();
+void Paketnoe_redaktirovanie_trub();
+
+void Pokazat_menu() {
+    cout << "\nМеню" << endl;
+    cout << "1. Добавить трубу" << endl;
+    cout << "2. Добавить компрессорную станцию" << endl;
+    cout << "3. Просмотр всех объектов" << endl;
+    cout << "4. Редактировать трубу" << endl;
+    cout << "5. Редактировать компрессорную станцию" << endl;
+    cout << "6. Поиск труб" << endl;
+    cout << "7. Поиск компрессорных станций" << endl;
+    cout << "8. Пакетное редактирование труб" << endl;
+    cout << "9. Сохранить данные" << endl;
+    cout << "10. Загрузить данные" << endl;
+    cout << "0. Выход" << endl;
+    cout << "Выберите действие: ";
 }
 
-// ввод строки с проверкой
-string Vvod_stroki(const string& prompt) {
-    string input;
-    while (true) {
-        cout << prompt;
-        getline(cin, input);
+void Dobavit_trubu() {
+    Truba novaya_truba;
+    novaya_truba.read();
+    truby[sleduyushiy_id_truba++] = novaya_truba;
+    logirovanie::log("Добавлена труба с ID: " + to_string(sleduyushiy_id_truba - 1));
+    cout << "Труба успешно добавлена с ID: " << sleduyushiy_id_truba - 1 << endl;
+}
 
-        if (Proverka_stroki(input)) {
-            return input;
+void Dobavit_KS() {
+    Kompressornaya_stantsiya novaya_ks;
+    novaya_ks.read();
+    kompressornye_stantsii[sleduyushiy_id_ks++] = novaya_ks;
+    logirovanie::log("Добавлена КС с ID: " + to_string(sleduyushiy_id_ks - 1));
+    cout << "Компрессорная станция успешно добавлена с ID: " << sleduyushiy_id_ks - 1 << endl;
+}
+
+void Pokazat_vse_obekty() {
+    cout << "\nТРУБЫ" << endl;
+    if (truby.empty()) {
+        cout << "Трубы отсутствуют" << endl;
+    }
+    else {
+        for (const auto& pair : truby) {
+            cout << "ID: " << pair.first << endl;
+            pair.second.print();
         }
-        else {
-            cout << "Ошибка! Введите только буквы: ";
+    }
+
+    cout << "\nКОМПРЕССОРНЫЕ СТАНЦИИ" << endl;
+    if (kompressornye_stantsii.empty()) {
+        cout << "Компрессорные станции отсутствуют" << endl;
+    }
+    else {
+        for (const auto& pair : kompressornye_stantsii) {
+            cout << "ID: " << pair.first << endl;
+            pair.second.print();
         }
+    }
+    logirovanie::log("Просмотр всех объектов");
+}
+
+void Redaktirovat_trubu() {
+    if (truby.empty()) {
+        cout << "Нет доступных труб для редактирования" << endl;
+        return;
+    }
+
+    cout << "Доступные трубы (ID): ";
+    for (const auto& pair : truby) {
+        cout << pair.first << " ";
+    }
+    cout << "\nВведите ID трубы для редактирования: ";
+
+    int id;
+    cin >> id;
+    if (truby.find(id) == truby.end()) {
+        cout << "Труба с указанным ID не найдена!" << endl;
+        return;
+    }
+
+    cout << "Текущий статус: " << (truby[id].isRemont() ? "В ремонте" : "Работает") << endl;
+    cout << "Введите новый статус (1 - в ремонте, 0 - работает): ";
+    int status;
+    cin >> status;
+    bool noviy_status = (status == 1);
+
+    truby[id].setRemont(noviy_status);
+    logirovanie::log("Изменен статус трубы ID: " + to_string(id) + " на: " + (noviy_status ? "в ремонте" : "работает"));
+    cout << "Статус трубы успешно изменен!" << endl;
+}
+
+void Redaktirovat_KS() {
+    if (kompressornye_stantsii.empty()) {
+        cout << "Нет доступных компрессорных станций для редактирования" << endl;
+        return;
+    }
+
+    cout << "Доступные КС (ID): ";
+    for (const auto& pair : kompressornye_stantsii) {
+        cout << pair.first << " ";
+    }
+    cout << "\nВведите ID КС для редактирования: ";
+
+    int id;
+    cin >> id;
+    if (kompressornye_stantsii.find(id) == kompressornye_stantsii.end()) {
+        cout << "КС с указанным ID не найдена!" << endl;
+        return;
+    }
+
+    cout << "1. Запустить цех" << endl;
+    cout << "2. Остановить цех" << endl;
+    cout << "Выберите действие: ";
+
+    int vibor;
+    cin >> vibor;
+    if (vibor == 1) {
+        kompressornye_stantsii[id].zapustit_ceh();
+        logirovanie::log("Запущен цех на КС ID: " + to_string(id));
+    }
+    else if (vibor == 2) {
+        kompressornye_stantsii[id].ostanovit_ceh();
+        logirovanie::log("Остановлен цех на КС ID: " + to_string(id));
+    }
+    else {
+        cout << "Неверный выбор!" << endl;
     }
 }
 
-// проверка булевого значения на ввод только 0 или 1
-bool Proverka_bl() {
-    int znachenie;
-    while (true) {
-        cin >> znachenie;
-        if (cin.fail() || (znachenie != 0 && znachenie != 1)) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Ошибка. Введите 0 или 1: ";
-        }
-        else {
-            // проверка на наличие лишнего после числа
-            char next_char = cin.peek();
-            if (next_char != '\n' && next_char != EOF) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Ошибка! Введите только число (0 или 1): ";
-                continue;
+void Poisk_trub() {
+    if (truby.empty()) {
+        cout << "Нет доступных труб для поиска" << endl;
+        return;
+    }
+
+    cout << "Критерии поиска труб:" << endl;
+    cout << "1. По названию" << endl;
+    cout << "2. По статусу ремонта" << endl;
+    cout << "Выберите критерий: ";
+
+    int kriteriy;
+    cin >> kriteriy;
+    vector<int> naydennye_id;
+
+    if (kriteriy == 1) {
+        cout << "Введите название для поиска: ";
+        cin.ignore();
+        string iskomoe_nazvanie;
+        getline(cin, iskomoe_nazvanie);
+
+        for (const auto& pair : truby) {
+            if (pair.second.getName().find(iskomoe_nazvanie) != string::npos) {
+                naydennye_id.push_back(pair.first);
             }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return znachenie == 1;
         }
     }
+    else if (kriteriy == 2) {
+        cout << "Введите статус ремонта (1 - в ремонте, 0 - работает): ";
+        int status;
+        cin >> status;
+        bool iskomy_status = (status == 1);
+
+        for (const auto& pair : truby) {
+            if (pair.second.isRemont() == iskomy_status) {
+                naydennye_id.push_back(pair.first);
+            }
+        }
+    }
+    else {
+        cout << "Неверный критерий!" << endl;
+        return;
+    }
+
+    if (naydennye_id.empty()) {
+        cout << "Трубы по заданному критерию не найдены" << endl;
+        return;
+    }
+
+    cout << "\nНайденные трубы:" << endl;
+    for (int id : naydennye_id) {
+        cout << "ID: " << id << endl;
+        truby[id].print();
+    }
+    logirovanie::log("Выполнен поиск труб. Найдено: " + to_string(naydennye_id.size()) + " объектов");
 }
 
-// проверка флота от 0 до максимума через limits
-float Proverka_fl(float min_znach = 0.0f, float max_znach = numeric_limits<float>::max()) {
-    float znachenie;
+void Poisk_KS() {
+    if (kompressornye_stantsii.empty()) {
+        cout << "Нет доступных компрессорных станций для поиска" << endl;
+        return;
+    }
+
+    cout << "Критерии поиска компрессорных станций:" << endl;
+    cout << "1. По названию" << endl;
+    cout << "2. По проценту незадействованных цехов" << endl;
+    cout << "Выберите критерий: ";
+
+    int kriteriy;
+    cin >> kriteriy;
+    vector<int> naydennye_id;
+
+    if (kriteriy == 1) {
+        cout << "Введите название для поиска: ";
+        cin.ignore();
+        string iskomoe_nazvanie;
+        getline(cin, iskomoe_nazvanie);
+
+        for (const auto& pair : kompressornye_stantsii) {
+            if (pair.second.getName().find(iskomoe_nazvanie) != string::npos) {
+                naydennye_id.push_back(pair.first);
+            }
+        }
+    }
+    else if (kriteriy == 2) {
+        cout << "Введите минимальный процент незадействованных цехов: ";
+        double min_procent;
+        cin >> min_procent;
+
+        for (const auto& pair : kompressornye_stantsii) {
+            if (pair.second.getProcentNeispolzovannyh() >= min_procent) {
+                naydennye_id.push_back(pair.first);
+            }
+        }
+    }
+    else {
+        cout << "Неверный критерий!" << endl;
+        return;
+    }
+
+    if (naydennye_id.empty()) {
+        cout << "Компрессорные станции по заданному критерию не найдены" << endl;
+        return;
+    }
+
+    cout << "\nНайденные компрессорные станции:" << endl;
+    for (int id : naydennye_id) {
+        cout << "ID: " << id << endl;
+        kompressornye_stantsii[id].print();
+        cout << "Процент незадействованных цехов: " << kompressornye_stantsii[id].getProcentNeispolzovannyh() << "%" << endl;
+    }
+    logirovanie::log("Выполнен поиск КС. Найдено: " + to_string(naydennye_id.size()) + " объектов");
+}
+
+void Paketnoe_redaktirovanie_trub() {
+    if (truby.empty()) {
+        cout << "Нет доступных труб для пакетного редактирования" << endl;
+        return;
+    }
+
+    vector<int> vozmozhnye_id;
+    cout << "Выберите трубы для пакетного редактирования:" << endl;
+    cout << "1. Все трубы" << endl;
+    cout << "2. Только трубы в ремонте" << endl;
+    cout << "3. Только работающие трубы" << endl;
+    cout << "Выберите опцию: ";
+
+    int opciya;
+    cin >> opciya;
+
+    for (const auto& pair : truby) {
+        if (opciya == 1 ||
+            (opciya == 2 && pair.second.isRemont()) ||
+            (opciya == 3 && !pair.second.isRemont())) {
+            vozmozhnye_id.push_back(pair.first);
+        }
+    }
+
+    if (vozmozhnye_id.empty()) {
+        cout << "Нет труб, соответствующих выбранному критерию" << endl;
+        return;
+    }
+
+    vector<int> vybrannye_id;
+    cout << "\nДоступные трубы для редактирования:" << endl;
+    for (int id : vozmozhnye_id) {
+        cout << "ID: " << id << " - " << truby[id].getName()
+            << " (" << (truby[id].isRemont() ? "в ремонте" : "работает") << ")" << endl;
+    }
+
+    cout << "Введите ID труб для редактирования (по одному, -1 для завершения): " << endl;
     while (true) {
-        cin >> znachenie;
-        if (cin.fail() || znachenie < min_znach || znachenie > max_znach) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Ошибка. Введите число от " << min_znach << " до " << max_znach << ": ";
+        int id;
+        cin >> id;
+        if (id == -1) break;
+
+        if (find(vozmozhnye_id.begin(), vozmozhnye_id.end(), id) != vozmozhnye_id.end()) {
+            vybrannye_id.push_back(id);
+            cout << "Труба " << id << " добавлена в список редактирования" << endl;
         }
         else {
-            // проверка на наличие лишнего после числа
-            char next_char = cin.peek();
-            if (next_char != '\n' && next_char != EOF) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Ошибка! Введите только число: ";
-                continue;
-            }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return znachenie;
-        }
-    }
-}
-
-// проверка инта от 0 до максимума через limits
-int Proverka_in(int min_znach = 0, int max_znach = numeric_limits<int>::max()) {
-    int znachenie;
-    while (true) {
-        cin >> znachenie;
-        if (cin.fail() || znachenie < min_znach || znachenie > max_znach) {
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Ошибка. Введите число от " << min_znach << " до " << max_znach << ": ";
-        }
-        else {
-            // проверка на наличие лишнего после числа
-            char next_char = cin.peek();
-            if (next_char != '\n' && next_char != EOF) {
-                cin.clear();
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Ошибка! Введите только число: ";
-                continue;
-            }
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            return znachenie;
-        }
-    }
-}
-
-// ввод данных о трубе
-void Vvodtrubi(Truba& pipe) {
-
-    pipe.name = Vvod_stroki("Введите название трубы (только буквы): ");
-
-    cout << "Введите длину трубы(км): ";
-    pipe.dlina_km = Proverka_fl(0.1f);
-
-    cout << "Введите диаметр трубы(мм): ";
-    pipe.diameter_mm = Proverka_in(1);
-
-    cout << "Введите статус трубы (0 - работает, 1 - в ремонте): ";
-    pipe.remont = Proverka_bl();
-
-}
-
-// ввод данных о кс
-void Vvodcomp(Compressor& cm) {
-
-    cm.name = Vvod_stroki("Введите название КС (только буквы): ");
-
-    cout << "Введите общее количество цехов: ";
-    cm.kol_cehov = Proverka_in(1);
-
-    cout << "Введите количество работающих цехов: ";
-    cm.vrabote = Proverka_in(0, cm.kol_cehov);
-
-    cout << "Введите класс станции (0.0-5.0): ";
-    cm.klass_stancii = Proverka_fl(0.0f, 5.0f);
-
-}
-
-// показ данных трубы
-void Pokaz_trubi(const Truba& pipe) {
-    if (pipe.name.empty()) {
-        cout << "Труба не добавлена" << endl;
-        return;
-    }
-
-    cout << "Труба " << endl;
-    cout << "Название: " << pipe.name << endl;
-    cout << "Длина: " << pipe.dlina_km << " км" << endl;
-    cout << "Диаметр: " << pipe.diameter_mm << " мм" << endl;
-    cout << "Статус: " << (pipe.remont ? "В ремонте" : "Работает") << endl;
-    cout << endl;
-}
-
-// показ данных кс
-void Pokaz_comp(const Compressor& cm) {
-    if (cm.name.empty()) {
-        cout << "Компрессорная станция не добавлена" << endl;
-        return;
-    }
-
-    cout << "Компрессорная станция " << endl;
-    cout << "Название: " << cm.name << endl;
-    cout << "Всего цехов: " << cm.kol_cehov << endl;
-    cout << "Работающих цехов: " << cm.vrabote << endl;
-    cout << "Класс станции: " << cm.klass_stancii << endl;
-    cout << endl;
-}
-
-// вывод всех введенных объектов
-void Vse_objects(const Truba& pipe, const Compressor& cm) {
-    Pokaz_trubi(pipe);
-    Pokaz_comp(cm);
-}
-
-// статус ремонта трубы
-void Izmenit_status(Truba& pipe) {
-    if (pipe.name.empty()) {
-        cout << "Труба не добавлена!" << endl;
-        return;
-    }
-
-    cout << "Текущий статус: " << (pipe.remont ? "В ремонте" : "Работает") << endl;
-    cout << "Введите новый статус (0 - работает, 1 - в ремонте): ";
-    pipe.remont = Proverka_bl();
-    cout << "Статус трубы изменен на: " << (pipe.remont ? "В ремонте" : "Работает") << endl;
-}
-
-// запуск цехов с проверкой количества
-void Zapustit_cehi(Compressor& cm) {
-    if (cm.name.empty()) {
-        cout << "Компрессорная станция не добавлена!" << endl;
-        return;
-    }
-
-    int dostupno = cm.kol_cehov - cm.vrabote;
-    if (dostupno == 0) {
-        cout << "Все цехи уже работают!" << endl;
-        return;
-    }
-
-    cout << "Доступно для запуска: " << dostupno << " цехов" << endl;
-    cout << "Сколько цехов запустить? ";
-
-    int zapuskaem = Proverka_in(1, dostupno);
-    cm.vrabote += zapuskaem;
-
-    cout << "Запущено " << zapuskaem << " цехов. Теперь работает: " << cm.vrabote << " цехов" << endl;
-}
-
-// остановка цехов с проверкой на количество
-void Ostanovit_cehi(Compressor& cm) {
-    if (cm.name.empty()) {
-        cout << "Компрессорная станция не добавлена!" << endl;
-        return;
-    }
-
-    if (cm.vrabote == 0) {
-        cout << "Нет работающих цехов!" << endl;
-        return;
-    }
-
-    cout << "Работает цехов: " << cm.vrabote << endl;
-    cout << "Сколько цехов остановить? ";
-
-    int ostanavlivaem = Proverka_in(1, cm.vrabote);
-    cm.vrabote -= ostanavlivaem;
-
-    cout << "Остановлено " << ostanavlivaem << " цехов. Теперь работает: " << cm.vrabote << " цехов" << endl;
-}
-
-// сохранение в файл
-void Sohranit_v_file(const Truba& pipe, const Compressor& cm) {
-    ofstream file("labor1.txt");
-
-    if (!file.is_open()) {
-        cout << "Ошибка открытия файла для записи!" << endl;
-        return;
-    }
-
-    file << "ТРУБА" << endl;
-    file << pipe.name << endl;
-    file << pipe.dlina_km << endl;
-    file << pipe.diameter_mm << endl;
-    file << pipe.remont << endl;
-
-    file << "КС" << endl;
-    file << cm.name << endl;
-    file << cm.kol_cehov << endl;
-    file << cm.vrabote << endl;
-    file << cm.klass_stancii << endl;
-
-    file.close();
-    cout << "Данные успешно сохранены в файл!" << endl;
-}
-
-// чтение из файла
-void Zagruzit_iz_file(Truba& pipe, Compressor& cm) {
-    ifstream file("labor1.txt");
-
-    if (!file.is_open()) {
-        cout << "Файл данных не найден!" << endl;
-        return;
-    }
-
-    string line;
-    while (getline(file, line)) {
-        if (line == "ТРУБА") {
-            getline(file, pipe.name);
-            file >> pipe.dlina_km >> pipe.diameter_mm >> pipe.remont;
-            file.ignore();
-        }
-        else if (line == "КС") {
-            getline(file, cm.name);
-            file >> cm.kol_cehov >> cm.vrabote >> cm.klass_stancii;
-            file.ignore();
+            cout << "Труба с ID " << id << " не найдена в доступном списке!" << endl;
         }
     }
 
-    file.close();
-    cout << "Данные успешно загружены из файла!" << endl;
+    if (vybrannye_id.empty()) {
+        cout << "Не выбрано ни одной трубы для редактирования" << endl;
+        return;
+    }
+
+    cout << "\nДействия:" << endl;
+    cout << "1. Изменить статус ремонта" << endl;
+    cout << "2. Удалить выбранные трубы" << endl;
+    cout << "Выберите действие: ";
+
+    int deystvie;
+    cin >> deystvie;
+
+    if (deystvie == 1) {
+        cout << "Введите новый статус (1 - в ремонте, 0 - работает): ";
+        int status;
+        cin >> status;
+        bool noviy_status = (status == 1);
+
+        for (int id : vybrannye_id) {
+            truby[id].setRemont(noviy_status);
+        }
+        logirovanie::log("Пакетное изменение статуса " + to_string(vybrannye_id.size()) + " труб на: " + (noviy_status ? "в ремонте" : "работает"));
+        cout << "Статус " << vybrannye_id.size() << " труб успешно изменен!" << endl;
+    }
+    else if (deystvie == 2) {
+        for (int id : vybrannye_id) {
+            truby.erase(id);
+        }
+        logirovanie::log("Пакетное удаление " + to_string(vybrannye_id.size()) + " труб");
+        cout << "Удалено " << vybrannye_id.size() << " труб!" << endl;
+    }
+    else {
+        cout << "Неверное действие!" << endl;
+    }
 }
 
-// меню консоли
-void menu() {
-    Truba pipe = { "", 0.0f, 0, false };
-    Compressor cm = { "", 0, 0, 0.0f };
+void Sohranit_dannye() {
+    cout << "Введите имя файла для сохранения: ";
+    cin.ignore();
+    string imya_faila;
+    getline(cin, imya_faila);
+
+    vector<Truba> vektor_trub;
+    for (const auto& pair : truby) {
+        vektor_trub.push_back(pair.second);
+    }
+
+    vector<Kompressornaya_stantsiya> vektor_ks;
+    for (const auto& pair : kompressornye_stantsii) {
+        vektor_ks.push_back(pair.second);
+    }
+
+    Sohranit_dannye(imya_faila, vektor_trub, vektor_ks);
+    logirovanie::log("Сохранение данных в файл: " + imya_faila);
+}
+
+void Zagruzit_dannye() {
+    cout << "Введите имя файла для загрузки: ";
+    cin.ignore();
+    string imya_faila;
+    getline(cin, imya_faila);
+
+    vector<Truba> vektor_trub;
+    vector<Kompressornaya_stantsiya> vektor_ks;
+
+    Zagruzit_dannye(imya_faila, vektor_trub, vektor_ks);
+
+    truby.clear();
+    kompressornye_stantsii.clear();
+
+    sleduyushiy_id_truba = 1;
+    sleduyushiy_id_ks = 1;
+
+    for (const auto& truba : vektor_trub) {
+        truby[sleduyushiy_id_truba++] = truba;
+    }
+
+    for (const auto& ks : vektor_ks) {
+        kompressornye_stantsii[sleduyushiy_id_ks++] = ks;
+    }
+
+    logirovanie::log("Загрузка данных из файла: " + imya_faila);
+}
+
+int main() {
+    SetConsoleCP(1251);
+    SetConsoleOutputCP(1251);
+    setlocale(LC_ALL, "Russian");
+    logirovanie::log("Программа запущена");
 
     while (true) {
-        cout << "Меню" << endl;
-        cout << "1. Добавить трубу" << endl;
-        cout << "2. Добавить КС" << endl;
-        cout << "3. Просмотр всех объектов" << endl;
-        cout << "4. Редактировать трубу" << endl;
-        cout << "5. Редактировать КС" << endl;
-        cout << "6. Сохранить данные" << endl;
-        cout << "7. Загрузить данные" << endl;
-        cout << "8. Выход" << endl;
-        cout << "Выберите действие: ";
-
-        int vibor = Proverka_in(1, 8);
-        cout << endl;
+        Pokazat_menu();
+        int vibor;
+        cin >> vibor;
 
         switch (vibor) {
-        case 1:
-            Vvodtrubi(pipe);
-            cout << "Труба успешно добавлена!" << endl;
-            break;
-
-        case 2:
-            Vvodcomp(cm);
-            cout << "Компрессорная станция успешно добавлена!" << endl;
-            break;
-
-        case 3:
-            Vse_objects(pipe, cm);
-            break;
-
-        case 4:
-            Izmenit_status(pipe);
-            break;
-
-        case 5:
-        {
-            if (cm.name.empty()) {
-                cout << "Сначала добавьте компрессорную станцию!" << endl;
-                break;
-            }
-
-            cout << "1. Запустить цехи" << endl;
-            cout << "2. Остановить цехи" << endl;
-            cout << "Выберите действие: ";
-
-            int podvibor = Proverka_in(1, 2);
-            if (podvibor == 1) {
-                Zapustit_cehi(cm);
-            }
-            else {
-                Ostanovit_cehi(cm);
-            }
-            break;
-        }
-
-        case 6:
-            Sohranit_v_file(pipe, cm);
-            break;
-
-        case 7:
-            Zagruzit_iz_file(pipe, cm);
-            break;
-
-        case 8:
+        case 1: Dobavit_trubu(); break;
+        case 2: Dobavit_KS(); break;
+        case 3: Pokazat_vse_obekty(); break;
+        case 4: Redaktirovat_trubu(); break;
+        case 5: Redaktirovat_KS(); break;
+        case 6: Poisk_trub(); break;
+        case 7: Poisk_KS(); break;
+        case 8: Paketnoe_redaktirovanie_trub(); break;
+        case 9: Sohranit_dannye(); break;
+        case 10: Zagruzit_dannye(); break;
+        case 0:
+            logirovanie::log("Выход из программы");
             cout << "Выход из программы!" << endl;
-            return;
+            return 0;
+        default:
+            cout << "Неверный выбор!" << endl;
+            break;
         }
     }
-}
-
-// пуск
-int main() {
-    setlocale(LC_ALL, "RU");
-    menu();
-    return 0;
 }
