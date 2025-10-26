@@ -124,6 +124,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="lab2_bogdashkin.cpp" />
+    <ClCompile Include="logirovanie.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="logirovanie.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
