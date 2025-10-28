@@ -35,7 +35,7 @@ void Truba::print() const {
 
 // ввод данных о трубе
 void Truba::read() {
-    name = Vvod_stroki("¬ведите название трубы (только буквы): ");
+    name = Vvod_stroki("¬ведите название трубы: ");
 
     cout << "¬ведите длину трубы(км): ";
     dlina_km = Proverka_fl(0.1f);

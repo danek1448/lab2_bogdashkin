@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include "truba.h"
+#include <limits>
 #include "cs.h"
 #include "instruments.h"
 #include "logirovanie.h"
@@ -48,6 +49,8 @@ void Pokazat_menu() {
 
 void Dobavit_trubu() {
     Truba novaya_truba;
+
+    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
     novaya_truba.read();
     truby[sleduyushiy_id_truba++] = novaya_truba;
     logirovanie::log("Добавлена труба с ID: " + to_string(sleduyushiy_id_truba - 1));
@@ -56,6 +59,8 @@ void Dobavit_trubu() {
 
 void Dobavit_KS() {
     Kompressornaya_stantsiya novaya_ks;
+
+    cin.ignore((numeric_limits<streamsize>::max)(), '\n');
     novaya_ks.read();
     kompressornye_stantsii[sleduyushiy_id_ks++] = novaya_ks;
     logirovanie::log("Добавлена КС с ID: " + to_string(sleduyushiy_id_ks - 1));
