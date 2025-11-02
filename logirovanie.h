@@ -3,9 +3,11 @@
 
 #include <string>
 
-class logirovanie {
+using namespace std;
+
+class Logirovanie {
 public:
-    static void log(const std::string& message);
+    static void log(const string& message);
 };
 
 #endif 

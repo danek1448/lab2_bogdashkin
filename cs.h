@@ -1,35 +1,34 @@
 #ifndef CS_H
 #define CS_H
+
 #include <string>
 
 using namespace std;
 
-// класс кс
 class Kompressornaya_stantsiya {
 private:
-    string name;           // название кс
-    int kol_cehov;         // общее количество цехов  
-    int vrabote;           // количество работающих цехов
-    double klass_stancii;  // класс станции (от 0.0 до 5.0)
+    string name;           
+    int kol_cehov;         
+    int vrabote;           
+    double klass_stancii;  
 
 public:
-    // конструкторы
     Kompressornaya_stantsiya();  
     Kompressornaya_stantsiya(string n, int cehi, int rabotayushchie, double klass);  
 
-    string getName() const;                      // получить название 
-    int getKolCehov() const;                     // получить общее количество цехов
-    int getVrabote() const;                      // получить количество работающих цехов
-    double getKlass() const;                     // получить класс 
-    double getProcentNeispolzovannyh() const;    // рассчитать процент незадействованных цехов
+    string getName() const;                     
+    int getKolCehov() const;                     
+    int getVrabote() const;                      
+    double getKlass() const;                     
+    double getProcentNeispolzovannyh() const;   
 
-    void zapustit_ceh();     // запустить цех
-    void ostanovit_ceh();    // остановить цех
-    void setName(const string& newName);  // установить новое название кс
+    void zapustit_ceh();    
+    void ostanovit_ceh();   
+    void setName(const string& newName);  
 
  
-    void print() const;  // вывести инфу о кс
-    void read();         // ввести данные кс
+    void print() const;  
+    void read();         
 };
 
 #endif

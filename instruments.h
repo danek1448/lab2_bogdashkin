@@ -15,7 +15,7 @@ float Proverka_fl(float min_znach = 0.0f, float max_znach = 3.402823466e+38f);  
 int Proverka_in(int min_znach = 0, int max_znach = 2147483647);  // ввод целого числа
 bool Proverka_bl();  //  ввод булевого значения 
 
-void Sohranit_dannye(const string& filename, const vector<Truba>& truby, const vector<Kompressornaya_stantsiya>& kompressornye_stantsii);  // сохранение данных в файл
-void Zagruzit_dannye(const string& filename, vector<Truba>& truby, vector<Kompressornaya_stantsiya>& kompressornye_stantsii);  // загрузка данных из файла
+void Sohranit_dannye(const string& imya_faila, const vector<Truba>& truby, const vector<Kompressornaya_stantsiya>& kompressornye_stantsii);  // сохранение данных в файл
+void Zagruzit_dannye(const string& imya_faila, vector<Truba>& truby, vector<Kompressornaya_stantsiya>& kompressornye_stantsii);  // загрузка данных из файла
 
 #endif

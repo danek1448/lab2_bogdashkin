@@ -45,7 +45,7 @@ float Proverka_fl(float min_znach, float max_znach) {
         if (cin.fail() || znachenie < min_znach || znachenie > max_znach) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Ошибка. Введите число от " << min_znach << " до " << max_znach << ": ";
+            cout << "Ошибка. Введите число: ";
         }
         else {
             char next_char = cin.peek();
@@ -68,7 +68,7 @@ int Proverka_in(int min_znach, int max_znach) {
         if (cin.fail() || znachenie < min_znach || znachenie > max_znach) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            cout << "Ошибка. Введите число от " << min_znach << " до " << max_znach << ": ";
+            cout << "Ошибка. Введите число: ";
         }
         else {
             char next_char = cin.peek();
@@ -107,8 +107,8 @@ bool Proverka_bl() {
     }
 }
 
-void Sohranit_dannye(const string& filename, const vector<Truba>& truby, const vector<Kompressornaya_stantsiya>& kompressornye_stantsii) {
-    ofstream outfile(filename);
+void Sohranit_dannye(const string& imya_faila, const vector<Truba>& truby, const vector<Kompressornaya_stantsiya>& kompressornye_stantsii) {
+    ofstream outfile(imya_faila);
     if (!outfile.is_open()) {
         cout << "Ошибка открытия файла!" << endl;
         return;
@@ -125,12 +125,12 @@ void Sohranit_dannye(const string& filename, const vector<Truba>& truby, const v
             outfile << ks.getName() << "," << ks.getKolCehov() << "," << ks.getVrabote() << "," << ks.getKlass() << endl;
         }
         outfile.close();
-        cout << "Данные сохранены в файл " << filename << endl;
+        cout << "Данные сохранены в файл " << imya_faila << endl;
     }
 }
 
-void Zagruzit_dannye(const string& filename, vector<Truba>& truby, vector<Kompressornaya_stantsiya>& kompressornye_stantsii) {
-    ifstream infile(filename);
+void Zagruzit_dannye(const string& imya_faila, vector<Truba>& truby, vector<Kompressornaya_stantsiya>& kompressornye_stantsii) {
+    ifstream infile(imya_faila);
     if (!infile.is_open()) {
         cout << "Файл не существует!" << endl;
         return;
@@ -179,6 +179,6 @@ void Zagruzit_dannye(const string& filename, vector<Truba>& truby, vector<Kompre
             }
         }
         infile.close();
-        cout << "Данные загружены из файла " << filename << endl;
+        cout << "Данные загружены из файла " << imya_faila << endl;
     }
 }

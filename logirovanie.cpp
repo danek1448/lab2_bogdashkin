@@ -5,7 +5,7 @@
 
 using namespace std; 
 
-void logirovanie::log(const string& message) {
+void Logirovanie::log(const string& message) {
     string logFileName = "log.txt";
     // открываем файл для добавления записей
     ofstream logFile(logFileName, ios::app);

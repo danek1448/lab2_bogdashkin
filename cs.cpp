@@ -65,7 +65,7 @@ void Kompressornaya_stantsiya::print() const {
 
 // ввод данных о станции 
 void Kompressornaya_stantsiya::read() {
-    name = Vvod_stroki("Введите название КС (только буквы): ");
+    name = Vvod_stroki("Введите название КС: ");
 
     cout << "Введите общее количество цехов: ";
     kol_cehov = Proverka_in(1);
@@ -73,6 +73,6 @@ void Kompressornaya_stantsiya::read() {
     cout << "Введите количество работающих цехов: ";
     vrabote = Proverka_in(0, kol_cehov);
 
-    cout << "Введите класс станции (0.0-5.0): ";
+    cout << "Введите класс станции (от 0 до 5): ";
     klass_stancii = Proverka_fl(0.0f, 5.0f);
 }
