@@ -26,6 +26,9 @@ public:
 
     void print() const;  // вывести инфу о трубе 
     void read();         // ввести данные о трубе
+
+    friend ostream& operator<<(ostream& out, const Truba& t);
+    friend istream& operator>>(istream& in, Truba& t);
 };
 
 #endif

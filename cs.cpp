@@ -48,31 +48,41 @@ void Kompressornaya_stantsiya::ostanovit_ceh() {
 // установка нового названия станции
 void Kompressornaya_stantsiya::setName(const string& newName) { name = newName; }
 
-// вывод информации о станции 
-void Kompressornaya_stantsiya::print() const {
-    if (name.empty()) {
-        cout << "Компрессорная станция не добавлена" << endl;
-        return;
-    }
 
-    cout << "Компрессорная станция " << endl;
-    cout << "Название: " << name << endl;
-    cout << "Всего цехов: " << kol_cehov << endl;
-    cout << "Работающих цехов: " << vrabote << endl;
-    cout << "Класс станции: " << klass_stancii << endl;
-    cout << endl;
+void Kompressornaya_stantsiya::print() const {
+    cout << *this; 
+}
+ 
+void Kompressornaya_stantsiya::read() {
+    cin >> *this; 
 }
 
-// ввод данных о станции 
-void Kompressornaya_stantsiya::read() {
-    name = Vvod_stroki("Введите название КС: ");
+ostream& operator<<(ostream& out, const Kompressornaya_stantsiya& ks) {
+    if (ks.name.empty()) {
+        out << "Компрессорная станция не добавлена" << endl;
+        return out;
+    }
+
+    out << "Компрессорная станция " << endl;
+    out << "Название: " << ks.name << endl;
+    out << "Всего цехов: " << ks.kol_cehov << endl;
+    out << "Работающих цехов: " << ks.vrabote << endl;
+    out << "Класс станции: " << ks.klass_stancii << endl;
+    out << endl;
+    return out;
+}
+
+istream& operator>>(istream& in, Kompressornaya_stantsiya& ks) {
+    ks.name = Vvod_stroki("Введите название КС: ");
 
     cout << "Введите общее количество цехов: ";
-    kol_cehov = Proverka_in(1);
+    ks.kol_cehov = Proverka_in(1);
 
     cout << "Введите количество работающих цехов: ";
-    vrabote = Proverka_in(0, kol_cehov);
+    ks.vrabote = Proverka_in(0, ks.kol_cehov);
 
     cout << "Введите класс станции (от 0 до 5): ";
-    klass_stancii = Proverka_fl(0.0f, 5.0f);
+    ks.klass_stancii = Proverka_fl(0.0f, 5.0f);
+
+    return in;
 }

@@ -24,25 +24,39 @@ void Truba::print() const {
         cout << "Труба не добавлена" << endl;
         return;
     }
-
-    cout << "Труба " << endl;
-    cout << "Название: " << name << endl;
-    cout << "Длина: " << dlina_km << " км" << endl;
-    cout << "Диаметр: " << diameter_mm << " мм" << endl;
-    cout << "Статус: " << (remont ? "В ремонте" : "Работает") << endl;
-    cout << endl;
+    cout << *this;
 }
 
-// ввод данных о трубе
 void Truba::read() {
-    name = Vvod_stroki("Введите название трубы: ");
+    cin >> *this; 
+}
+
+ostream& operator<<(ostream& out, const Truba& t) {
+    if (t.name.empty()) {
+        out << "Труба не добавлена" << endl;
+        return out;
+    }
+
+    out << "Труба " << endl;
+    out << "Название: " << t.name << endl;
+    out << "Длина: " << t.dlina_km << " км" << endl;
+    out << "Диаметр: " << t.diameter_mm << " мм" << endl;
+    out << "Статус: " << (t.remont ? "В ремонте" : "Работает") << endl;
+    out << endl;
+    return out;
+}
+
+istream& operator>>(istream& in, Truba& t) {
+    t.name = Vvod_stroki("Введите название трубы: ");
 
     cout << "Введите длину трубы(км): ";
-    dlina_km = Proverka_fl(0.1f);
+    t.dlina_km = Proverka_fl(0.1f);
 
     cout << "Введите диаметр трубы(мм): ";
-    diameter_mm = Proverka_in(1);
+    t.diameter_mm = Proverka_in(1);
 
     cout << "Введите статус трубы (0 - работает, 1 - в ремонте): ";
-    remont = Proverka_bl();
+    t.remont = Proverka_bl();
+
+    return in;
 }
