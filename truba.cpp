@@ -37,12 +37,12 @@ ostream& operator<<(ostream& out, const Truba& t) {
         return out;
     }
 
-    out << "Труба " << endl;
-    out << "Название: " << t.name << endl;
-    out << "Длина: " << t.dlina_km << " км" << endl;
-    out << "Диаметр: " << t.diameter_mm << " мм" << endl;
-    out << "Статус: " << (t.remont ? "В ремонте" : "Работает") << endl;
-    out << endl;
+    out << "Труба " << endl
+        << "Название: " << t.name << endl
+        << "Длина: " << t.dlina_km << " км" << endl
+        << "Диаметр: " << t.diameter_mm << " мм" << endl
+        << "Статус: " << (t.remont ? "В ремонте" : "Работает") << endl
+        << endl;
     return out;
 }
 

@@ -63,12 +63,12 @@ ostream& operator<<(ostream& out, const Kompressornaya_stantsiya& ks) {
         return out;
     }
 
-    out << "Компрессорная станция " << endl;
-    out << "Название: " << ks.name << endl;
-    out << "Всего цехов: " << ks.kol_cehov << endl;
-    out << "Работающих цехов: " << ks.vrabote << endl;
-    out << "Класс станции: " << ks.klass_stancii << endl;
-    out << endl;
+    out << "Компрессорная станция " << endl
+        << "Название: " << ks.name << endl
+        << "Всего цехов: " << ks.kol_cehov << endl
+        << "Работающих цехов: " << ks.vrabote << endl
+        << "Класс станции: " << ks.klass_stancii << endl
+        << endl;
     return out;
 }
 
